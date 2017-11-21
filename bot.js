@@ -47,7 +47,7 @@ bot.on('message', async message => {
       console.log('Could not get guild from database for some reason');
     }
     // Check if control command or message came from control channel
-    if (config.control_commands.includes(command) || config.control_channels.includes(message.channel.name)) {
+    if (config.control_commands.includes(command) && config.control_channels.includes(message.channel.name)) {
       switch (command) {
         case 'list':
           message.reply('Available commands are `' + config.control_commands.join('`, `') + '`.\nFor more information visit https://github.com/cyberinferno/discord-chum/blob/master/README.md');
