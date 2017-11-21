@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "token": "your_bot_token",
+  "prefix": "!",
+  "control_channels": [
+    "discord-chum-control"
+  ],
+  "control_commands": [
+    "list",
+    "set",
+    "show",
+    "create",
+    "update"
+  ]
+}
