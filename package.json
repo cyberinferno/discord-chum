@@ -1,21 +1,21 @@
 {
-  "name": "tantra-online-discord-bot",
+  "name": "discord-chum",
   "version": "1.0.0",
-  "description": "Tantra Online Discord bot",
+  "description": "Discord chum - A simple Discord bot",
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cyberinferno/tantra-online-discord-bot.git"
+    "url": "git+https://github.com/cyberinferno/discord-chum.git"
   },
   "author": "Karthik P",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cyberinferno/tantra-online-discord-bot/issues"
+    "url": "https://github.com/cyberinferno/discord-chum/issues"
   },
-  "homepage": "https://github.com/cyberinferno/tantra-online-discord-bot#readme",
+  "homepage": "https://github.com/cyberinferno/discord-chum#readme",
   "dependencies": {
     "discord.js": "^11.2.1",
     "sqlite3": "^3.1.13"

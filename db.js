@@ -85,5 +85,43 @@ module.exports = {
         callback(err);
       }
     });
+  },
+  updateGuildCommand: function (guildCommandId, value, callback) {
+    db.run('UPDATE guild_command SET output = ? WHERE id = ?', [value, guildCommandId], function (err) {
+      if (err) {
+        console.log('There was some error updating guild command ID' + guildCommandId);
+      }
+      if (typeof callback === 'function') {
+        callback(err);
+      }
+    });
+  },
+  createGuildCommand: function (guildId, command, value, callback) {
+    this.getGuildCommand(guildId, command, function (data) {
+      if (data === null) {
+        db.run('INSERT INTO guild_command(guild_id, command, output) VALUES(?, ?, ?)', [guildId, command, value], function (err) {
+          if (err) {
+            console.log('There was some error inserting guild command into guild ' + guildId + ' with command ' + command);
+          }
+          if (typeof callback === 'function') {
+            callback(err);
+          }
+        });
+      } else {
+        if (typeof callback === 'function') {
+          callback('This user executable command already exists');
+        }
+      }
+    });
+  },
+  deleteGuildCommand: function (guildCommandId, callback) {
+    db.run('UPDATE guild_command SET is_deleted = 1 WHERE id = ?', [guildCommandId], function (err) {
+      if (err) {
+        console.log('There was some error deleting with guild command ID' + guildCommandId);
+      }
+      if (typeof callback === 'function') {
+        callback(err);
+      }
+    });
   }
 };

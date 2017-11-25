@@ -58,6 +58,18 @@ bot.on('message', async message => {
         case 'show':
           processShowCommand(args, message, guild);
           break;
+        case 'create':
+          processCreateCommand(args, message, guild);
+          break;
+        case 'update':
+          processUpdateCommand(args, message, guild);
+          break;
+        case 'delete':
+          processDeleteCommand(args, message, guild);
+          break;
+        case 'view':
+          processViewCommand(args, message, guild);
+          break;
         default:
           message.reply('Invalid command or the command is work in progress. To get a list of all available commands use `!list`');
           break;
@@ -79,7 +91,7 @@ bot.on('message', async message => {
               if (commandList.length === 0) {
                 message.reply('There are no available commands currently. Please come back later when admin adds new commands');
               } else {
-                message.reply('Available commands: `' + commandList.join('`, `') + '`');
+                message.reply('Available commands: `!' + commandList.join('`, `!') + '`');
               }
             }
           });
@@ -134,7 +146,11 @@ bot.on('guildMemberAdd', member => {
 });
 
 // Log our bot in
-bot.login(config.token);
+bot.login(config.token).catch(function (err) {
+  console.log('Could not start DiscordChum');
+  console.log(err.message);
+  process.exit();
+});
 
 function processSetCommand(args, message, guild) {
   if (!availableVariables.includes(args[0])) {
@@ -191,10 +207,158 @@ function processShowCommand(args, message, guild) {
   }
 }
 
+function processCreateCommand(args, message, guild) {
+  let command = args.shift();
+  switch (command) {
+    case 'command':
+      processUserExecutableCreateCommand(args, message, guild);
+      break;
+    default:
+      message.reply('Invalid option given to create command. Please refer DiscordChum documentation to know available options.');
+      break;
+  }
+}
+
+function processUpdateCommand(args, message, guild) {
+  let command = args.shift();
+  switch (command) {
+    case 'command':
+      processUserExecutableUpdateCommand(args, message, guild);
+      break;
+    default:
+      message.reply('Invalid option given to update command. Please refer DiscordChum documentation to know available options.');
+      break;
+  }
+}
+
+function processViewCommand(args, message, guild) {
+  let command = args.shift();
+  switch (command) {
+    case 'command':
+      processUserExecutableViewCommand(args, message, guild);
+      break;
+    default:
+      message.reply('Invalid option given to view command. Please refer DiscordChum documentation to know available options.');
+      break;
+  }
+}
+
+function processDeleteCommand(args, message, guild) {
+  let command = args.shift();
+  switch (command) {
+    case 'command':
+      processUserExecutableDeleteCommand(args, message, guild);
+      break;
+    default:
+      message.reply('Invalid option given to delete command. Please refer DiscordChum documentation to know available options.');
+      break;
+  }
+}
+
+function processUserExecutableCreateCommand(args, message, guild) {
+  if (args.length < 2) {
+    message.reply('Invalid create command format. Please refer documentation for more info');
+  } else {
+    let command = args.shift();
+    if (!isAlphanumericHyphenUnderscore(command)) {
+      message.reply('User executable command can only contain alphanumeric as well as hyphen and underscore characters only');
+    } else {
+      db.getGuildCommand(guild.id, command, function (data) {
+        if (data !== null) {
+          message.reply(command + ' command already exists. Please use update command to update it');
+        } else {
+          db.createGuildCommand(guild.id, command, args.join(' '), function (err) {
+            if (err === undefined || err === '' || err === ' ' || err === null) {
+              message.reply(command + ' command was successfully created');
+            } else {
+              message.reply(command + ' command could not be created. Please try again');
+            }
+          });
+        }
+      });
+    }
+  }
+}
+
+function processUserExecutableUpdateCommand(args, message, guild) {
+  if (args.length < 2) {
+    message.reply('Invalid create command format. Please refer documentation for more info');
+  } else {
+    let command = args.shift();
+    if (!isAlphanumericHyphenUnderscore(command)) {
+      message.reply('User executable command can only contain alphanumeric as well as hyphen and underscore characters only');
+    } else {
+      db.getGuildCommand(guild.id, command, function (data) {
+        if (data === null) {
+          message.reply(command + ' command does not exist');
+        } else {
+          db.updateGuildCommand(data.id, args.join(' '), function (err) {
+            if (err === undefined || err === '' || err === ' ' || err === null) {
+              message.reply(command + ' command was successfully updated');
+            } else {
+              message.reply(command + ' command could not be updated. Please try again');
+            }
+          });
+        }
+      });
+    }
+  }
+}
+
+function processUserExecutableViewCommand(args, message, guild) {
+  let command = args.shift();
+  if (!isAlphanumericHyphenUnderscore(command)) {
+    message.reply('User executable command can only contain alphanumeric as well as hyphen and underscore characters only');
+  } else {
+    db.getGuildCommand(guild.id, command, function (data) {
+      if (data === null) {
+        message.reply('Invalid command. Please create the command before viewing it');
+      } else {
+        let output = data.output;
+        if (data.command === 'info') {
+          if (guild.server_url && guild.server_url !== 'null') {
+            output += '\nServer link: ' + guild.server_url;
+          }
+          if (guild.forum_url && guild.forum_url !== 'null') {
+            output += '\nForum link: ' + guild.forum_url;
+          }
+          if (guild.download_url && guild.download_url !== 'null') {
+            output += '\nDownload link: ' + guild.download_url;
+          }
+        }
+        message.reply(output);
+      }
+    });
+  }
+}
+
+function processUserExecutableDeleteCommand(args, message, guild) {
+  let command = args.shift();
+  if (!isAlphanumericHyphenUnderscore(command)) {
+    message.reply('User executable command can only contain alphanumeric as well as hyphen and underscore characters only');
+  } else if (command === 'info') {
+    message.reply('`info` is a default user executable command. Hence it cannot be deleted. It can only be updated');
+  } else {
+    db.getGuildCommand(guild.id, command, function (data) {
+      if (data === null) {
+        message.reply(command + ' command does not exist');
+      } else {
+        db.deleteGuildCommand(data.id, function (err) {
+          if (err === undefined || err === '' || err === ' ' || err === null) {
+            message.reply(command + ' command was successfully deleted');
+          } else {
+            message.reply(command + ' command could not be deleted. Please try again');
+          }
+        });
+      }
+    });
+  }
+}
+
 function isUrl(str) {
   return /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/.test(str);
 }
 
-function isAlphanumeric(str) {
-  return /^\w+$/.test(str);
+function isAlphanumericHyphenUnderscore(str) {
+  return /^[a-zA-Z0-9-_]+$/.test(str);
 }
