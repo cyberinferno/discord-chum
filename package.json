@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/cyberinferno/discord-chum#readme",
   "dependencies": {
-    "discord.js": "^11.2.1",
+    "discord.js": "^11.6.4",
     "sqlite3": "^3.1.13"
   }
 }
